@@ -1,0 +1,28 @@
+# Results written by the program (README example, tests.test_validation_pictures --update)
+results/
+!data/validation/results/
+validation_results/
+validation_update/
+
+# Python and tools
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+
+# Installer builds
+/build/
+/dist/
+/installers/
+
+# Operating systems and editors
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/

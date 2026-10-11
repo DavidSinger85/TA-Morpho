@@ -1,0 +1,20 @@
+# Update version and date-released at each release.
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "TA-Morpho: shape measurement of testate amoeba tests"
+type: software
+license: MIT
+version: 1.0.0
+date-released: "2026-10-11"
+authors:
+  - family-names: "Singer"
+    given-names: "David"
+    orcid: "https://orcid.org/0000-0002-4116-033X"
+repository-code: "https://github.com/DavidSinger85/TA-Morpho"
+keywords:
+  - testate amoebae
+  - Arcellinida
+  - Hyalospheniidae
+  - morphometrics
+  - geometric morphometrics
+  - image analysis

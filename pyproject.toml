@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools>=77"]      # licence as an SPDX expression (PEP 639)
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ta-morpho"
+dynamic = ["version"]
+description = "Shape measurement of testate amoeba tests from microscope pictures"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "David Singer" }]
+requires-python = ">=3.11"
+dependencies = [
+    "numpy",
+    "scipy",
+    "scikit-image",
+    "opencv-python-headless",
+    "pandas",
+    "matplotlib",
+    "pyyaml",
+]
+
+[project.optional-dependencies]
+gui = ["PySide6"]
+test = ["pytest"]
+
+[project.urls]
+Repository = "https://github.com/DavidSinger85/TA-Morpho"
+
+[project.scripts]
+ta-morpho = "ta_morpho.export:main"
+ta-morpho-gui = "ta_morpho.gui.launcher:main"
+
+[tool.setuptools.dynamic]
+version = { attr = "ta_morpho.__version__" }
+
+[tool.setuptools.packages.find]
+include = ["ta_morpho", "ta_morpho.*"]
+
+[tool.setuptools.package-data]
+"ta_morpho" = ["config.yaml", "genus_characters.csv"]
+"ta_morpho.gui" = ["assets/*"]
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+# Errors and likely bugs only (no style rules): pyflakes, syntax, bugbear.
+select = ["F", "E9", "B"]
+
+[tool.ruff.lint.per-file-ignores]
+# zip(strict=True) is required in ta_morpho/ (a length mismatch must fail, not shift columns).
+"tests/*" = ["B905"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

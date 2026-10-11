@@ -1,0 +1,254 @@
+# Settings of TA-Morpho: every setting of the method is here. The choice of
+# each value is explained in docs/METHODS.md, and docs/PARAMETERS.md lists
+# them all.
+
+paths:
+  raw_dir: data/raw
+  # Start points or aperture corners set by hand (columns image, x, y, end_x,
+  # end_y, fundus_x, fundus_y); easiest from the desktop interface.
+  landmarks_csv: data/landmarks.csv
+  # Cells checked by eye and accepted (columns image, note): a "check"
+  # becomes "ok"; the QC messages are kept in summary.csv as notes.
+  review_csv: data/qc_review.csv
+  # Holes/bumps added by hand (columns image, action = add, kind = hole |
+  # bump, x, y, radius_px, note); easiest from the desktop interface.
+  feature_corrections_csv: data/feature_corrections.csv
+  # Genus, species and characters set by hand (columns image, name, value;
+  # name = genus, species or a character of docs/CHARACTERS.md). The other
+  # characters come from the genus (ta_morpho/genus_characters.csv); easiest from the
+  # desktop interface (Review > Characters).
+  characters_csv: data/characters.csv
+  results_dir: results
+
+calibration:
+  # Default physical length of the scale bar, used only when neither the
+  # file name nor calibration_overrides.csv gives one (picture flagged "check").
+  bar_length_um: 25.0
+  # Plausible bar lengths (µm). A bare leading number in the file name
+  # ("20 Nebela collaris") is read as the bar length only inside this range
+  # (so a date or counter such as "003_..." is not); a length with a unit
+  # ("3um") outside it is used but flagged "check".
+  bar_length_range_um: [5, 500]
+  # If set (a number), no scale bar is searched: this value is used for every
+  # picture that has no px_per_um of its own in overrides_csv.
+  px_per_um: null
+  # Settings given in µm (<name>_um: morphology, wall band, snapping, cut
+  # contact) are converted to pixels with each picture's calibration, but never
+  # below <name>_min_px (on low-resolution pictures a finer setting would go
+  # below the pixel noise). A picture without calibration uses this
+  # resolution instead (its µm results stay empty).
+  uncalibrated_px_per_um: 7.0
+  # Per-picture exceptions: CSV with columns image, px_per_um, bar_length_um
+  # (leave a cell empty to use the default). Use it for pictures without a
+  # bar (px_per_um) or with a bar of another length (bar_length_um).
+  overrides_csv: data/calibration_overrides.csv
+  # Kinds of bar to look for: dark (black), light (white), color (any
+  # saturated colour, e.g. red/yellow).
+  bar_modes: [dark, light, color]
+  # Threshold on each mode's feature image (0-255, bar pixels are above):
+  #   dark  -> 255 - grey  (175 means grey < 80)
+  #   light -> grey
+  #   color -> HSV saturation
+  thresholds:
+    dark: 175
+    light: 200
+    color: 100
+  # Width of the horizontal opening kernel, as a fraction of picture width.
+  # Removes text glyphs (e.g. the "µ" descender) touching the bar.
+  # The bar must be longer than this.
+  min_bar_length_frac: 0.05
+  # Shape filters for candidate bars.
+  # length / thickness; 3 accepts short thick bars of small pictures
+  # (e.g. 48 x 15 px), letters are rejected by min_component_share.
+  min_aspect_ratio: 3.0
+  min_extent: 0.85          # area / bounding-box area (rectangularity)
+  # Background check: a bar must lie on plain background on at least one
+  # side (fraction of background pixels in the band above or below) ...
+  min_isolation: 0.9
+  # ... and differ from the background beyond its ends by this much (0-255).
+  min_contrast: 80
+  # Share of its connected shape (before the opening) that the bar must
+  # make up: a bar is its own shape (a touching label adds a little); the
+  # bar of a letter such as "4" is a small part of the letter.
+  min_component_share: 0.5
+
+segmentation:
+  # Command line: an outline drawn by hand, <masks_dir>/<name>_mask.png (name =
+  # the picture's file name without its extension; white = test), replaces the
+  # automatic one. To start from the automatic outline, run with --save-masks:
+  # it writes <output folder>/masks/<name>_mask.png. (The desktop program
+  # keeps its drawn outlines in cells/ of its output folder.)
+  masks_dir: data/masks
+  # Width of the picture frame used to estimate the background colour (px:
+  # a property of the picture, not of the specimen).
+  border_px: 10
+  # A pixel is "test" if its colour differs from the background by more
+  # than this (CIE76 ΔE; ~2 = just noticeable, 10 = clearly different).
+  # 15 ignores the faint glow along edges in SEM pictures.
+  delta_e_threshold: 15.0
+  # Background type, detected per picture: "light" (dark test on a pale
+  # background, bright-field light microscopy) or "dark" (bright test on a
+  # dark background, SEM / dark-field). On a light background only pixels
+  # darker than the background (or of another colour) count as test, which
+  # leaves out the bright halo outside the wall.
+  # Decided on a band this wide (µm, at least _min_px) inside the edge of a
+  # first rough mask (the wall): balance = share of band pixels darker than
+  # the background minus share lighter (by more than delta_e_threshold in
+  # L*), -1 to +1. |balance| below min_background_balance -> type uncertain:
+  # the general "dark" rule is used and the picture flagged.
+  background_band_um: 1.4
+  background_band_min_px: 10
+  min_background_balance: 0.3
+  # Force the type per picture (columns image, background = light|dark).
+  background_overrides_csv: data/background_overrides.csv
+  # Morphology (radius in µm, at least _min_px): closing bridges gaps in a
+  # faint wall, opening detaches small debris touching the test.
+  close_radius_um: 0.4
+  close_radius_min_px: 3
+  open_radius_um: 0.4
+  open_radius_min_px: 3
+  # Final outline smoothing (Gaussian sigma, µm; 0 = off). Same physical
+  # scale at every resolution; removes pixel jaggedness and edge noise,
+  # rounds off details narrower than ~this, keeps the aperture corners.
+  # Needs the calibration. The crop (straight-edge) check uses the mask
+  # before smoothing.
+  smooth_um: 1.0
+  # Plausibility checks (fraction of the picture area); outside -> "check".
+  min_area_frac: 0.02
+  max_area_frac: 0.9
+  # Only the largest object is measured. Another object larger than this
+  # fraction of it (a second test, a large piece of debris) -> "check".
+  max_second_object_frac: 0.3
+  # Longest allowed perfectly vertical/horizontal outline stretch (px; a
+  # pixel-grid test: at low resolution curved edges give longer exact runs,
+  # so a µm threshold over-flags); longer -> "check" (test probably cut by
+  # a picture crop). Flat apertures seen exactly edge-on are ~40-50 px in
+  # typical figures, hence 60.
+  max_straight_edge_px: 60
+  # Flat bands along the picture edges (frame of a figure or screenshot):
+  # whole rows/columns of one colour (grey std <= edge_band_max_std) that
+  # differ from the background, up to this fraction of the picture size, are
+  # left out and count as the picture edge (a figure panel cut out with a
+  # margin of the page or plate around it).
+  edge_band_max_frac: 0.25
+  edge_band_max_std: 2.0
+  # A thin frame line just inside a band or the picture edge (the panel's own
+  # border around a drawing, often not flat: drawn or slightly tilted), up to
+  # this fraction of the picture size (at least 3 px), is part of the frame
+  # when it is clearly darker or lighter than the background after it. 0 = off.
+  edge_line_frac: 0.015
+  # Pale, thin wall (hyaline shells, DIC, faint drawings): when the mask
+  # follows the contents, the broken wall line is closed with disks of these
+  # radii (µm; at least 3 px) and the whole test kept if it is at least
+  # wall_ring_min_gain x larger and its outline lies on wall pixels for at
+  # least wall_ring_min_support of its length. [] turns it off.
+  wall_ring_radii_um: [1.0, 2.0, 4.0]
+  wall_ring_min_gain: 1.25
+  wall_ring_min_support: 0.85
+  # Second pass for fainter walls: around the result of the first pass, the
+  # wall pixels at this lower ΔE are closed the same way, and kept on the
+  # same conditions (growth at least wall_ring_min_gain, support, no picture
+  # frame).
+  wall_ring_delta_e: 12.0
+
+landmark:
+  # Start point precedence: landmarks.csv (image,x,y) > automatic aperture
+  # corner > fallback. CSV points are snapped to the nearest outline pixel;
+  # if further than this (µm, at least _min_px) the picture is flagged "check".
+  snap_tolerance_um: 2.0
+  snap_tolerance_min_px: 15
+  # Aperture detection (elongated tests with the aperture seen in profile):
+  min_elongation: 1.05      # major/minor axis; rounder -> no aperture (ovoid tests still have one)
+  end_frac: 0.15            # length fraction used to compare end widths
+  max_width_ratio: 0.97     # narrow/wide end width must be below this
+  corner_region_frac: 0.25  # search corners in this fraction near the aperture end
+  corner_scale_frac: 0.0125 # outline span (fraction of perimeter) for corner angle
+  min_corner_turn_deg: 22   # both corners must turn at least this much
+  # Which corner on each side: of the corners turning at least this fraction
+  # of the sharpest one, the one nearest the end (the rim, not a sharper bump
+  # or debris further up the side); 1 = the sharpest corner.
+  corner_strong_frac: 0.8
+  # A corner lies at least this fraction of the narrow end's half-width out
+  # from its middle (not the tip of a domed or pointed rim); 0 = off.
+  corner_min_lateral_frac: 0.3
+  # Spines and teeth: corners are searched on the outline with everything
+  # narrower than a disk of this radius (x the test's minor axis) cut off, so
+  # they lie at the spine bases, then put back on the sharpest point of the
+  # real outline nearby. 0 = off.
+  spine_opening_frac: 0.06
+  # When the rule above finds no aperture (round test, ends of almost equal
+  # width, no clear corners): the aperture is taken as the pair of sharp corners (each
+  # turning at least min_corner_turn_deg) at most corner_pair_max_arc_frac of
+  # the perimeter apart along the outline, the pair whose weaker corner is the
+  # sharpest (e.g. the collar of Nebela flabellulum). Flagged "check".
+  # corner_pair_fallback: false turns this off.
+  corner_pair_fallback: true
+  corner_pair_max_arc_frac: 0.25
+  # No aperture found (e.g. round Centropyxis): "max_radius" = start at the
+  # outline point furthest from the centroid (flagged "check"), or "flag".
+  fallback: max_radius
+  # Test cut by the picture border: from this length of outline (µm, at least
+  # _min_px) on one picture edge, no automatic aperture (it may be outside the
+  # picture); the landmark fails until the aperture corners are set by hand.
+  cut_contact_um: 1.4
+  cut_contact_min_px: 10
+
+rays:
+  # Angle between rays, clockwise from the start landmark (ray 0).
+  angle_step_deg: 5
+  # If a ray crosses the outline several times (non star-shaped outline):
+  # "last" = outermost crossing, "first" = innermost. Picture flagged "check".
+  intersection: last
+
+metadata:
+  # File names: "Genus_species_<bar>um_<id>.ext" or "<bar> Genus species.ext".
+  # Parts are split on this regular expression (underscores and/or spaces).
+  # Bar length from the name is used unless calibration_overrides.csv gives
+  # one; missing parts -> status "check".
+  separator: "[_\\s]+"
+
+outline_profile:
+  # Outline profile: points equally spaced along the outline, anchored on the
+  # aperture corners (ta_morpho/outline_profile.py). 250 points; the aperture gets
+  # 22 points, the body the rest.
+  n_points: 250
+  n_aperture: 22
+  # Third anchor at the fundus (aboral end of the oral-aboral axis): the body
+  # is split in two sides of equal point count (114 + 114), so left and right
+  # sides of different specimens correspond (landmarks: points 0, 22, 136).
+  fundus_anchor: true
+
+classic:
+  # Classic measurements in broad view (ta_morpho/classic.py), along the oral-aboral
+  # axis: from the aperture midpoint through the middle of the far end of the
+  # test, or through a fundus set by hand (same rule; no snap to the
+  # perpendicular of the aperture, the aperture angle gives the tilt).
+  lip_margin: 0.03            # ignore sections this close (x length) to the aperture plane
+  neck_window: 0.08           # +- window (x length) for the width-profile slope
+  min_neck_slope_jump: 0.5    # steepening of the width profile that marks a neck-body junction
+  min_neck_start: 0.08        # junction not closer than this (x length) to the oral end; no effect below 2 x neck_window (searched from there)
+  section_step_px: 1.0        # spacing of the width sections (px: sampling of the pixel outline)
+  fundus_far_frac: 0.1        # far end of the test (the axis goes through its middle) = outline within this fraction of the largest distance from the aperture midpoint
+
+# Holes and bumps are added by hand only (desktop interface or
+# feature_corrections_csv); they are then measured as follows.
+features:
+  # Measurement of the holes and bumps added by hand (ta_morpho/features.py).
+  turn_um: 5.0                # curvature measured over +- this distance along the outline; also the default circle radius of a new hole/bump
+  flank_um: 0.2               # bump in a circle: measured from the concave stretches at least this deep on each side
+  step_um: 0.1                # outline resampling step
+  # A hole/bump added in a CSV with its centre only (no radius_px) is the
+  # nearest concave stretch (hole) or convex stretch between two concave ones
+  # (bump) within match_pct % of the perimeter; such a bump is not wider than
+  # bump_max_um (and bump_max_frac x perimeter) and is not within corner_um of
+  # an aperture corner.
+  match_pct: 3.0
+  bump_max_um: 40.0
+  bump_max_frac: 0.15
+  corner_um: 1.5
+
+descriptors:
+  # Shape descriptors (ta_morpho/descriptors.py): harmonics h1..h<n> and the symmetry
+  # index use a fine radial profile, independent of rays.angle_step_deg.
+  n_harmonics: 5
+  fine_step_deg: 1.0

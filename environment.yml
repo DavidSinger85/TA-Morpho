@@ -1,0 +1,10 @@
+# Conda environment with the exact versions the tests pass with:
+#   conda env create -f environment.yml
+name: ta-morpho
+channels: [conda-forge]
+dependencies:
+  - python=3.11
+  - pip
+  - pip:
+      - -r requirements-lock.txt
+      - -e .

@@ -1,0 +1,61 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+  workflow_call:          # run first by release.yml: no installer is built from failing code
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Lint (errors and likely bugs only)
+        run: pip install ruff==0.16.10 && ruff check ta_morpho tests
+
+  pytest:
+    # Linux on both supported Python versions; Windows and macOS (accented
+    # paths, file locking, Qt plugins differ there) on the oldest one.
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ["3.11", "3.12"]
+        include:
+          - os: windows-latest
+            python-version: "3.11"
+          - os: macos-latest
+            python-version: "3.11"
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30          # a test waiting on a window or a dialog stops here, not after 6 hours
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: |
+            pyproject.toml
+            requirements-lock.txt
+      - name: System libraries for Qt (offscreen window test)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libegl1 libgl1 libxkbcommon0 libfontconfig1 libdbus-1-3
+      - name: Install the package and its dependencies
+        run: pip install -e ".[gui,test]" -c requirements-lock.txt
+      - name: Run tests
+        env:
+          QT_QPA_PLATFORM: offscreen
+          PYTHONUTF8: "0"          # Windows: keep the legacy code page, as on users' machines
+          TA_MORPHO_REQUIRE_QT: "1"   # the window tests fail, not skip, if Qt cannot load
+        run: python -m pytest tests -q -rs
+      - name: Commands work
+        shell: bash               # stop at the first failure on Windows too
+        run: |
+          set -e
+          ta-morpho --version
+          ta-morpho-gui --version
+          ta-morpho-gui --self-test --log self_test.log || { cat self_test.log; exit 1; }
