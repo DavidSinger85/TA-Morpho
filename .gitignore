@@ -3,6 +3,7 @@ results/
 !data/validation/results/
 validation_results/
 validation_update/
+.Rhistory
 
 # Python and tools
 __pycache__/

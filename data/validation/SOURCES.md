@@ -9,6 +9,13 @@ so the program calibrates them by itself. Where the panel's bar was outside the 
 not be read by the program, it was taken from the same figure at the same scale, as said in the Scale
 column. Drawings have no scale. Panel letters and fragments of neighbouring panels were left as published.
 
+The table describes the pictures in `images/Replicate_1/`. `images/Replicate_2/` and `images/Replicate_3/`
+hold copies of the same 24 pictures, resized (×0.7–1.6), turned and mirrored on half, differently in each
+folder, for the repeatability test (made by `scripts/1_make_pictures.py`; every change is in
+`data/transforms.csv`). The scale bar was cut out, resized with the picture and pasted back level on a
+strip at the bottom, so the bar length in the file name stays valid. Each copy has the source, credit and
+licence of the picture with the same file name in the table.
+
 | Picture | Taxon | Imaging | Source | Where (PDF page, figure) | Original credit | Scale | Licence |
 |---|---|---|---|---|---|---|---|
 | `Alabasta_militaris_P00178_20um.png` | *Alabasta militaris* | SEM | Kosakyan et al. 2025 | p. 42, Fig. 7A | modified from Ogden & Hedley (1980) | scale bar of the panel (picture cut to include it), length from the caption | [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/), with permission (below) |
@@ -41,7 +48,7 @@ column. Drawings have no scale. Panel letters and fragments of neighbouring pane
 The pictures are **not** covered by the MIT licence of the code.
 
 - Pictures from Todorov & Bankov (2019), Bobrov et al. (2021) and Duckert et al. (2023) are under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/): they may be reused with credit to the source (see the table).
-- Pictures from Kosakyan et al. (2025) come from a book under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/) (© Éditions Alphil-Presses universitaires suisses). They are included here cut from their figures, three of them with their scale bar changed (copied from the figure and turned horizontal, or painted black: see the Scale column), with the permission of the authors, for TA-Morpho only. To reuse them, start from the original figures, under the book's licence; some panels are themselves reproduced in the book from earlier works (Original credit).
+- Pictures from Kosakyan et al. (2025) come from a book under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/) (© Éditions Alphil-Presses universitaires suisses). They are included here cut from their figures, three of them with their scale bar changed (copied from the figure and turned horizontal, or painted black: see the Scale column), and as resized, turned copies in `Replicate_2` and `Replicate_3`, with the permission of the authors, for TA-Morpho only. To reuse them, start from the original figures, under the book's licence; some panels are themselves reproduced in the book from earlier works (Original credit).
 
 ## References
 
