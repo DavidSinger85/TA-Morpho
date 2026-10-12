@@ -2,6 +2,7 @@
 
 [![tests](https://github.com/DavidSinger85/TA-Morpho/actions/workflows/tests.yml/badge.svg)](https://github.com/DavidSinger85/TA-Morpho/actions/workflows/tests.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23311257.svg)](https://doi.org/10.5281/zenodo.23311257)
 
 TA-Morpho measures the shape of testate amoeba tests (shells) from microscope
 pictures (light microscopy, SEM) or drawings, one test per picture. It finds
@@ -177,8 +178,13 @@ follow the [code of conduct](CODE_OF_CONDUCT.md).
 
 ## Citation
 
-Please cite the software ([`CITATION.cff`](CITATION.cff)); a citation with a
-DOI will be given here once the software is archived.
+Please cite the software:
+
+> Singer, D. (2026). *TA-Morpho: shape measurement of testate amoeba tests*
+> (v1.0.0). Zenodo. https://doi.org/10.5281/zenodo.23311257
+
+The same reference is in [`CITATION.cff`](CITATION.cff) (GitHub's "Cite this
+repository" button).
 
 ## License
 

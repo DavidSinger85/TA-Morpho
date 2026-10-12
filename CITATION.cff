@@ -1,4 +1,4 @@
-# Update version and date-released at each release.
+# Update version, date-released and doi (Zenodo, per version) at each release.
 cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
 title: "TA-Morpho: shape measurement of testate amoeba tests"
@@ -6,6 +6,7 @@ type: software
 license: MIT
 version: 1.0.0
 date-released: "2026-10-11"
+doi: "10.5281/zenodo.23311257"
 authors:
   - family-names: "Singer"
     given-names: "David"
